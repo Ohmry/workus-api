@@ -30,12 +30,12 @@ public class UserController {
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse> signin(HttpServletRequest servletRequest, @RequestBody SigninRequest request) {
         request.validate();
-        User user = userService.getUserByEmail(request.email);
+        User user = userService.getUser(request.email);
         user.verify(request.password);
-        SessionUtils.set(servletRequest, SessionKeys.USER_INFO, user);
+        userService.storeUserSession(user);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ApiResponse(ApiStatus.SUCCESS, UserInfo.valueOf(user)));
+                .build();
     }
 
     @PostMapping("/signout")

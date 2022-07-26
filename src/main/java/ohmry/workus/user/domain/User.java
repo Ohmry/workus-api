@@ -14,44 +14,40 @@ public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(length = 50, nullable = false, unique = true)
-    private String email;
-    @Column(nullable = false)
-    private String password;
     @Column(length = 50, nullable = false)
     private String name;
-    @OneToMany(mappedBy = "user")
-    private List<GroupUser> groups;
+    @Embedded
+    private UserCredential credential;
+    @Embedded
+    private UserGroup groups;
 
     protected User() {}
     public User(String email, String password, String name) {
-        this.email = email;
-        this.password = password;
+        this.credential = new UserCredential(email, password);
         this.name = name;
+        this.groups = new UserGroup();
     }
 
     public Long getId() {
         return this.id;
     }
     public String getEmail() {
-        return this.email;
+        return this.credential.getEmail();
     }
     public String getPassword() {
-        return this.password;
+        return this.credential.getPassword();
     }
     public String getName() {
         return this.name;
     }
     public List<GroupUser> getGroups() {
-        return this.groups;
+        return this.groups.getGroups();
     }
 
     public void updateName(String name) {
         this.name = name;
     }
-    public void verify(String password) {
-        if (!PasswordUtils.verify(this.password, password)) {
-            throw new InvalidUserCredentialException();
-        }
+    public boolean verify(String password) {
+        return this.credential.verify(password);
     }
 }
