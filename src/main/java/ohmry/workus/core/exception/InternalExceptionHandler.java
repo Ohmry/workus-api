@@ -1,5 +1,6 @@
 package ohmry.workus.core.exception;
 
+import ohmry.workus.core.ApiRequestDispatcher;
 import ohmry.workus.core.ApiResponse;
 import ohmry.workus.core.ApiStatus;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -23,15 +24,10 @@ public class InternalExceptionHandler implements ErrorController {
     }
     @RequestMapping("/error")
     public ResponseEntity<ApiResponse> handle (HttpServletRequest request) {
-        Object requestUriObject = request.getAttribute("requestUri");
-        Object apiStatusObject = request.getAttribute("apiStatus");
-
-        String requestUri = requestUriObject == null ? "/error" : requestUriObject.toString();
-        ApiStatus apiStatus = apiStatusObject == null ? ApiStatus.UNAUTHORIZATION : ApiStatus.valueOf(apiStatusObject.toString());
-
+        HttpStatus httpStatus = (HttpStatus) request.getAttribute(ApiRequestDispatcher.HTTP_STATUS);
+        ApiStatus apiStatus = (ApiStatus) request.getAttribute(ApiRequestDispatcher.API_STATUS);
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .header("Location", requestUri)
+                .status(httpStatus)
                 .body(new ApiResponse(apiStatus));
     }
 }

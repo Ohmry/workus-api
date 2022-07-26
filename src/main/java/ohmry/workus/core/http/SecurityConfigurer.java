@@ -19,7 +19,6 @@ public class SecurityConfigurer {
         http.formLogin().disable();
         http.csrf().ignoringAntMatchers("/console/**/**").disable();
         http.headers().frameOptions().sameOrigin();
-
         return http.build();
     }
 

@@ -1,11 +1,15 @@
 package ohmry.workus.user.model;
 
+import ohmry.workus.group.domain.GroupUser;
 import ohmry.workus.user.domain.User;
+
+import java.util.List;
 
 public class UserInfo {
     public final Long id;
     public final String email;
     public final String name;
+
 
     protected UserInfo(Long id, String email, String name) {
         this.id = id;

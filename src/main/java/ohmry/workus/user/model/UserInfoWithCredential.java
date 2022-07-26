@@ -1,6 +1,9 @@
 package ohmry.workus.user.model;
 
+import ohmry.workus.group.domain.GroupUser;
 import ohmry.workus.user.domain.User;
+
+import java.util.List;
 
 public class UserInfoWithCredential extends UserInfo {
     public final String password;

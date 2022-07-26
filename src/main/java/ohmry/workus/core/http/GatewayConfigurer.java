@@ -15,7 +15,6 @@ import java.util.List;
 public class GatewayConfigurer implements WebMvcConfigurer {
     private final AuthenticationInterceptor authenticationInterceptor;
     private final RequestDenyInterceptor requestDenyInterceptor;
-    private final List<String> SERVICE_WHITELIST = Arrays.asList("/api/**", "/console", "/error");
 
     public GatewayConfigurer(AuthenticationInterceptor authenticationInterceptor,
                              RequestDenyInterceptor requestDenyInterceptor) {
@@ -26,9 +25,8 @@ public class GatewayConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authenticationInterceptor)
-                .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/signup", "/api/signin");
+                        .addPathPatterns("/user", "/group");
         registry.addInterceptor(requestDenyInterceptor)
-                .excludePathPatterns("/api/**", "/error", "/console");
+                        .excludePathPatterns("/signup",  "/signin", "/user/**", "/error", "/console/**");
     }
 }

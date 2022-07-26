@@ -1,21 +1,12 @@
 package ohmry.workus.user.controller;
 
-import ohmry.workus.core.ApiResponse;
-import ohmry.workus.core.ApiStatus;
-import ohmry.workus.core.SessionKeys;
-import ohmry.workus.core.SessionUtils;
-import ohmry.workus.user.exception.UserNotFoundException;
-import ohmry.workus.user.model.SigninRequest;
-import ohmry.workus.user.model.SignupRequest;
-import ohmry.workus.user.model.UserInfoWithCredential;
-import ohmry.workus.user.model.UserInfo;
+import ohmry.workus.core.*;
+import ohmry.workus.user.domain.User;
+import ohmry.workus.user.model.*;
 import ohmry.workus.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,32 +21,48 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signup(HttpServletRequest servletRequest, @RequestBody SignupRequest request) {
         request.validate();
-        UserInfo userInfo = userService.createUser(request.email, request.password, request.name);
+        User user = userService.createUser(request.email, request.password, request.name);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ApiResponse(ApiStatus.SUCCESS, userInfo));
+                .body(new ApiResponse(ApiStatus.SUCCESS, UserInfo.valueOf(user)));
     }
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse> signin(HttpServletRequest servletRequest, @RequestBody SigninRequest request) {
         request.validate();
-        UserInfoWithCredential userInfoWithCredential = userService.getUserWithCredentialByEmail(request.email);
-        userService.verify(userInfoWithCredential, request.password);
-        UserInfo userInfo = UserInfo.parse(userInfoWithCredential);
-        SessionUtils.set(servletRequest, SessionKeys.USER_INFO, userInfo);
+        User user = userService.getUserByEmail(request.email);
+        user.verify(request.password);
+        SessionUtils.set(servletRequest, SessionKeys.USER_INFO, user);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ApiResponse(ApiStatus.SUCCESS, userInfo));
+                .body(new ApiResponse(ApiStatus.SUCCESS, UserInfo.valueOf(user)));
     }
 
-    @GetMapping("/user")
-    public ResponseEntity<ApiResponse> getUser(HttpServletRequest servletRequest) {
-        UserInfo userInfo = (UserInfo) SessionUtils.get(servletRequest, SessionKeys.USER_INFO);
-        if (userInfo == null) {
-            throw new UserNotFoundException();
-        }
+    @PostMapping("/signout")
+    public ResponseEntity<ApiResponse> signout(HttpServletRequest servletRequest) {
+        SessionUtils.expire(servletRequest);
         return ResponseEntity
                 .status(HttpStatus.OK)
+                .body(new ApiResponse(ApiStatus.SUCCESS));
+    }
+
+    @UserSessionRequired
+    @GetMapping("/user")
+    public ResponseEntity<ApiResponse> getUser(HttpServletRequest servletRequest) {
+        User user = (User) servletRequest.getAttribute(ApiRequestDispatcher.USER_INFO);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ApiResponse(ApiStatus.SUCCESS, UserInfo.valueOf(user)));
+    }
+
+    @UserSessionRequired
+    @PutMapping("/user")
+    public ResponseEntity<ApiResponse> updateUser(HttpServletRequest servletRequest, @RequestBody UserUpdateRequest request) {
+        request.validate();
+        UserInfo userInfo = (UserInfo) servletRequest.getAttribute(ApiRequestDispatcher.USER_INFO);
+        userInfo = userService.updateUser(userInfo.id, request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(new ApiResponse(ApiStatus.SUCCESS, userInfo));
     }
 }

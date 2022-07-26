@@ -163,4 +163,19 @@ public class UserControllerTests {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
+    @Test
+    @Order(9)
+    public void 사용자_정보수정() throws Exception {
+        JSONObject request = new JSONObject();
+        request.put("name", "이병훈_수정");
+
+        mockMvc.perform(put("/user")
+                        .session(mockHttpSession)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request.toString()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.name").value(request.get("name")))
+                .andDo(print());
+    }
 }
