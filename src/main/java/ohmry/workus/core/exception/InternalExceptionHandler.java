@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RestControllerAdvice
 public class InternalExceptionHandler implements ErrorController {
-    @ExceptionHandler(IllegalRequestException.class)
-    public ResponseEntity<ApiResponse> handleIllegalRequestException(IllegalRequestException e) {
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiResponse> handleBadRequestException(BadRequestException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ApiResponse(ApiStatus.INVALID_PARAMETER));

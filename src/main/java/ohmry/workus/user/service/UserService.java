@@ -21,6 +21,17 @@ public class UserService {
         this.userRepository = userJpaRepository;
     }
 
+    @Transactional
+    public User createUser(String email, String password, String name) {
+        if (existsEmailInDatabase(email)) {
+            throw new EmailAlreadyExistsException(email);
+        }
+    }
+
+    public boolean existsEmailInDatabase(String email) {
+        return userRepository.existsUserByEmail(email);
+    }
+
 
 //    private final UserJpaRepository userJpaRepository;
 //
