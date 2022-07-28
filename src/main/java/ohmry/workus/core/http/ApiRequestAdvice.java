@@ -2,6 +2,7 @@ package ohmry.workus.core.http;
 
 import ohmry.workus.core.RequestObject;
 import ohmry.workus.core.exception.BadRequestException;
+import ohmry.workus.core.exception.IllegalRequestException;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -21,7 +22,7 @@ public class ApiRequestAdvice extends RequestBodyAdviceAdapter {
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         if (!(body instanceof RequestObject)) {
-            throw new BadRequestException(body.getClass());
+            throw new IllegalRequestException();
         }
 
         RequestObject requestObject = (RequestObject) body;

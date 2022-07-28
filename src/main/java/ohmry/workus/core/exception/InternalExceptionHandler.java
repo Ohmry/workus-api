@@ -16,12 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RestControllerAdvice
 public class InternalExceptionHandler implements ErrorController {
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ApiResponse> handleBadRequestException(BadRequestException e) {
+    @ExceptionHandler({ BadRequestException.class, IllegalRequestException.class })
+    public ResponseEntity<ApiResponse> handleBadRequestException(RuntimeException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ApiResponse(ApiStatus.INVALID_PARAMETER));
     }
+
     @RequestMapping("/error")
     public ResponseEntity<ApiResponse> handle (HttpServletRequest request) {
         HttpStatus httpStatus = (HttpStatus) request.getAttribute(ApiRequestDispatcher.HTTP_STATUS);
